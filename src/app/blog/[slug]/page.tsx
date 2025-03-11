@@ -3,7 +3,7 @@ import path from 'path';
 import matter from 'gray-matter';
 import { MDXRemote } from 'next-mdx-remote/rsc';
 import BlogPost from '@/components/BlogPost';
-import { Pre, Code, Heading2 } from '@/components/mdx';
+import { Pre, Code, Heading2, Link } from '@/components/mdx';
 
 interface Frontmatter {
   title: string;
@@ -15,6 +15,7 @@ const components = {
   pre: Pre,
   code: Code,
   h2: Heading2,
+  a: Link,
 };
 
 // Correct typing provided directly by Next.js docs

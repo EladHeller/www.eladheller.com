@@ -1,108 +1,37 @@
 ---
-title: 'שימוש נכון ב-React Hooks'
-date: '2024-03-11'
-description: 'מדריך מקיף על השימוש הנכון ב-React Hooks ודוגמאות שימושיות'
+title: 'איך נבדוק האם קובץ כבר קיים ב-S3?'
+date: '2025-03-11'
+description: 'איך נבדוק ב-node.js האם קובץ קיים כבר ב-S3 כדי להימנע משלבים מיותרים ב-build שלנו'
 ---
 
-# שימוש נכון ב-React Hooks
+# בדיקה האם קובץ מקומי קיים ב-S3
+## למה בכלל רציתי האם קובץ קיים ב-S3?
+[יש לי פרויקט שרץ ב-AWS](https://github.com/EladHeller/wiki-bot/blob/master/build/t01.cf.yaml) עם הרבה למבדות.
+במהלך ה-CD של הפרויקט אני מעדכן את הלמבדות בשינויים בקוד.
+כדי לעדכן את הלמבדה אני מעלה את הקוד ל-S3 ואז פונה ללמבדה עם הגרסה החדשה של הקובץ מ-S3.
+אם אני יודע שהקוד לא השתנה, אני יכול לחסוך כמה דקות של עדכון כל הלמבדות שלי ובנוסף חוסך תעבורה ל-S3 שעולה (ממש מעט כסף).
+## מנגנון ה-
+[לכל אובייקט ב-S3 יש ETag](https://docs.aws.amazon.com/AmazonS3/latest/API/API_Object.html) שהוא מזהה ייחודי של תוכן האובייקט.
+מנגנון היצירה של ה-ETag תלוי בצורה שבה הועלה הקובץ ל-S3.
+אם מעלים דרך ה-sdk עם הגדרות ברירת המחדל, ה-ETag יחושב על ידי MD5.
+אם הקובץ גדול מ-16 MB, לכל חתיכה של 16 MB מחושב ואז שוב מחושב על כל החתיכות ביחד, עם מספר נוסף שמסמן את מספר החתיכות.
+``` ts
+const chunk = 1024 * 1024 * 16; // 16MB
 
-React Hooks שינו את הדרך שבה אנחנו כותבים קומפוננטות ב-React. במאמר זה נלמד על השימושים הנכונים והטעויות הנפוצות.
+const md5 = (data: Buffer) => crypto.createHash('md5').update(data).digest('hex');
 
-## useState - ניהול state בקומפוננטה
+async function getEtagOfFile(stream: Buffer) {
+  if (stream.length <= chunk) {
+    return md5(stream);
+  }
+  const md5Chunks: string[] = [];
+  const chunksNumber = Math.ceil(stream.length / chunk);
+  for (let i = 0; i < chunksNumber; i += 1) {
+    const chunkStream = Uint8Array.prototype.slice.call(stream, i * chunk, (i + 1) * chunk);
+    md5Chunks.push(md5(chunkStream));
+  }
 
-הנה דוגמה פשוטה לשימוש ב-`useState`:
-
-```typescript
-import { useState } from 'react';
-
-function Counter() {
-  const [count, setCount] = useState(0);
-  
-  return (
-    <div>
-      <p>המונה הנוכחי: {count}</p>
-      <button onClick={() => setCount(count + 1)}>
-        הגדל מונה
-      </button>
-    </div>
-  );
+  return `${md5(Buffer.from(md5Chunks.join(''), 'hex'))}-${chunksNumber}`;
 }
 ```
-
-## useEffect - ניהול Side Effects
-
-`useEffect` משמש אותנו לביצוע פעולות צד כמו קריאות API או הרשמה לאירועים:
-
-```typescript
-import { useEffect, useState } from 'react';
-
-function UserProfile({ userId }: { userId: string }) {
-  const [userData, setUserData] = useState(null);
-
-  useEffect(() => {
-    // פונקציה אסינכרונית לקבלת מידע על המשתמש
-    async function fetchUserData() {
-      const response = await fetch(`/api/users/${userId}`);
-      const data = await response.json();
-      setUserData(data);
-    }
-
-    fetchUserData();
-  }, [userId]); // תלות ב-userId
-
-  if (!userData) return <div>טוען...</div>;
-
-  return (
-    <div>
-      <h2>{userData.name}</h2>
-      <p>{userData.email}</p>
-    </div>
-  );
-}
-```
-
-## טיפים חשובים
-
-### 1. Rules of Hooks
-
-- תמיד השתמש ב-Hooks בשורש הקומפוננטה
-- אל תשתמש ב-Hooks בתוך תנאים או לולאות
-- השתמש ב-Hooks רק בקומפוננטות React או ב-Custom Hooks
-
-### 2. Custom Hooks
-
-ניתן ליצור Custom Hooks כדי לחלוק לוגיקה בין קומפוננטות:
-
-```typescript
-function useLocalStorage<T>(key: string, initialValue: T) {
-  const [storedValue, setStoredValue] = useState<T>(() => {
-    try {
-      const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
-    } catch (error) {
-      return initialValue;
-    }
-  });
-
-  const setValue = (value: T) => {
-    try {
-      setStoredValue(value);
-      window.localStorage.setItem(key, JSON.stringify(value));
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  return [storedValue, setValue] as const;
-}
-```
-
-## סיכום
-
-React Hooks הם כלי חזק שמאפשר לנו לכתוב קוד נקי ומודולרי יותר. חשוב להכיר את הכללים והדפוסים הנכונים כדי להשתמש בהם בצורה יעילה.
-
-זכרו:
-- תמיד לעקוב אחר Rules of Hooks
-- לשים לב למערך התלויות ב-`useEffect`
-- ליצור Custom Hooks כשיש לוגיקה משותפת
-- להשתמש ב-TypeScript לקבלת type safety 
+איך אני יודע? [כתבתי את זה באינטרנט מזמן](https://stackoverflow.com/a/56382237/4517775) אז בטוח זה נכון.

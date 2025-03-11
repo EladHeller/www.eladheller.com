@@ -75,4 +75,20 @@ export const Heading2 = ({ children }: { children: ReactNode }) => (
   <h2 className="text-2xl font-bold mt-10 mb-6 text-white">
     {children}
   </h2>
+);
+
+interface LinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+  children: ReactNode;
+}
+
+export const Link = ({ children, href, ...props }: LinkProps) => (
+  <a
+    href={href}
+    className="text-blue-400 hover:text-blue-300 transition-colors decoration-blue-400/30 hover:decoration-blue-300"
+    target={href?.startsWith('http') ? '_blank' : undefined}
+    rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
+    {...props}
+  >
+    {children}
+  </a>
 ); 
