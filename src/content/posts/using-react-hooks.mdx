@@ -1,0 +1,108 @@
+---
+title: 'שימוש נכון ב-React Hooks'
+date: '2024-03-11'
+description: 'מדריך מקיף על השימוש הנכון ב-React Hooks ודוגמאות שימושיות'
+---
+
+# שימוש נכון ב-React Hooks
+
+React Hooks שינו את הדרך שבה אנחנו כותבים קומפוננטות ב-React. במאמר זה נלמד על השימושים הנכונים והטעויות הנפוצות.
+
+## useState - ניהול state בקומפוננטה
+
+הנה דוגמה פשוטה לשימוש ב-`useState`:
+
+```typescript
+import { useState } from 'react';
+
+function Counter() {
+  const [count, setCount] = useState(0);
+  
+  return (
+    <div>
+      <p>המונה הנוכחי: {count}</p>
+      <button onClick={() => setCount(count + 1)}>
+        הגדל מונה
+      </button>
+    </div>
+  );
+}
+```
+
+## useEffect - ניהול Side Effects
+
+`useEffect` משמש אותנו לביצוע פעולות צד כמו קריאות API או הרשמה לאירועים:
+
+```typescript
+import { useEffect, useState } from 'react';
+
+function UserProfile({ userId }: { userId: string }) {
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    // פונקציה אסינכרונית לקבלת מידע על המשתמש
+    async function fetchUserData() {
+      const response = await fetch(`/api/users/${userId}`);
+      const data = await response.json();
+      setUserData(data);
+    }
+
+    fetchUserData();
+  }, [userId]); // תלות ב-userId
+
+  if (!userData) return <div>טוען...</div>;
+
+  return (
+    <div>
+      <h2>{userData.name}</h2>
+      <p>{userData.email}</p>
+    </div>
+  );
+}
+```
+
+## טיפים חשובים
+
+### 1. Rules of Hooks
+
+- תמיד השתמש ב-Hooks בשורש הקומפוננטה
+- אל תשתמש ב-Hooks בתוך תנאים או לולאות
+- השתמש ב-Hooks רק בקומפוננטות React או ב-Custom Hooks
+
+### 2. Custom Hooks
+
+ניתן ליצור Custom Hooks כדי לחלוק לוגיקה בין קומפוננטות:
+
+```typescript
+function useLocalStorage<T>(key: string, initialValue: T) {
+  const [storedValue, setStoredValue] = useState<T>(() => {
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      return initialValue;
+    }
+  });
+
+  const setValue = (value: T) => {
+    try {
+      setStoredValue(value);
+      window.localStorage.setItem(key, JSON.stringify(value));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return [storedValue, setValue] as const;
+}
+```
+
+## סיכום
+
+React Hooks הם כלי חזק שמאפשר לנו לכתוב קוד נקי ומודולרי יותר. חשוב להכיר את הכללים והדפוסים הנכונים כדי להשתמש בהם בצורה יעילה.
+
+זכרו:
+- תמיד לעקוב אחר Rules of Hooks
+- לשים לב למערך התלויות ב-`useEffect`
+- ליצור Custom Hooks כשיש לוגיקה משותפת
+- להשתמש ב-TypeScript לקבלת type safety 
