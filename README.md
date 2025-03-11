@@ -1,4 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# הבלוג שלי
+
+בלוג אישי מבוסס Next.js 15 עם תמיכה ב-MDX וקטעי קוד.
+
+## תכונות
+
+- 🚀 מבוסס על Next.js 15
+- 📝 תמיכה ב-MDX לכתיבת תוכן
+- 💻 הדגשת תחביר לקטעי קוד
+- 🎨 עיצוב מודרני עם Tailwind CSS
+- 📱 תצוגה רספונסיבית
+- ⚡ Static Site Generation (SSG)
+
+## התקנה
+
+```bash
+# התקנת תלויות
+npm install
+
+# הרצת שרת פיתוח
+npm run dev
+
+# בניית גרסת ייצור
+npm run build
+
+# הרצת גרסת ייצור
+npm run start
+```
+
+## כתיבת פוסטים
+
+1. צור קובץ MDX חדש בתיקיית `src/app/blog/[slug]/page.mdx`
+2. הוסף frontmatter בראש הקובץ:
+   ```yaml
+   ---
+   title: 'כותרת הפוסט'
+   date: 'YYYY-MM-DD'
+   description: 'תיאור קצר של הפוסט'
+   ---
+   ```
+3. כתוב את תוכן הפוסט ב-MDX
+4. הוסף קטעי קוד עם הדגשת תחביר:
+   ````markdown
+   ```python
+   def example():
+       return "Hello, World!"
+   ```
+   ````
+
+## רישיון
+
+MIT
 
 ## Getting Started
 
