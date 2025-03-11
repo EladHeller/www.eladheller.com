@@ -26,7 +26,7 @@ export default function Footer() {
             <FaLinkedin />
           </a>
           <a 
-            href="mailto:me@eladheller.com" 
+            href="mailto:blog@eladheller.com" 
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-300 hover:text-blue-400 transition-colors text-2xl"
