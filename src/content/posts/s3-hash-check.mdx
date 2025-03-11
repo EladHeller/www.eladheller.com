@@ -1,0 +1,62 @@
+---
+title: 'איך נבדוק האם קובץ כבר קיים ב-S3?'
+date: '2025-03-11'
+description: 'איך נבדוק ב-node.js האם קובץ קיים כבר ב-S3 כדי להימנע משלבים מיותרים ב-build שלנו'
+---
+
+# בדיקה האם קובץ מקומי קיים ב-S3
+## למה בכלל חשוב לי לבדוק אם קובץ קיים כבר ב-S3?
+[יש לי פרויקט שרץ ב-AWS](https://github.com/EladHeller/wiki-bot/blob/master/build/t01.cf.yaml) עם הרבה למבדות.
+במהלך ה-CD של הפרויקט אני מעדכן את הלמבדות בשינויים בקוד.
+כדי לעדכן את הלמבדה אני מעלה את הקוד ל-S3 ואז פונה ללמבדה עם הגרסה החדשה של הקובץ מ-S3.
+אם אני יודע שהקוד לא השתנה, אני יכול לחסוך כמה דקות של עדכון כל הלמבדות שלי ובנוסף חוסך תעבורה ל-S3 שעולה (ממש מעט) כסף .
+## מנגנון ה-
+[לכל אובייקט ב-S3 יש ETag](https://docs.aws.amazon.com/AmazonS3/latest/API/API_Object.html) שהוא מזהה ייחודי של תוכן האובייקט.
+מנגנון היצירה של ה-ETag תלוי בצורה שבה הועלה הקובץ ל-S3.
+אם מעלים דרך ה-sdk עם הגדרות ברירת המחדל, ה-ETag יחושב על ידי MD5.
+אם הקובץ גדול מ-16 MB, לכל חתיכה של 16 MB מחושב ואז שוב מחושב על כל החתיכות ביחד, עם מספר נוסף שמסמן את מספר החתיכות.
+``` ts
+const chunk = 1024 * 1024 * 16; // 16MB
+
+const md5 = (data: Buffer) => crypto.createHash('md5').update(data).digest('hex');
+
+async function getEtagOfFile(stream: Buffer) {
+  if (stream.length <= chunk) {
+    return md5(stream);
+  }
+  const md5Chunks: string[] = [];
+  const chunksNumber = Math.ceil(stream.length / chunk);
+  for (let i = 0; i < chunksNumber; i += 1) {
+    const chunkStream = Uint8Array.prototype.slice.call(stream, i * chunk, (i + 1) * chunk);
+    md5Chunks.push(md5(chunkStream));
+  }
+
+  return `${md5(Buffer.from(md5Chunks.join(''), 'hex'))}-${chunksNumber}`;
+}
+```
+איך אני יודע? [כתבתי את זה באינטרנט מזמן](https://stackoverflow.com/a/56382237/4517775) אז בטוח זה נכון.
+## אז הכל טוב?
+הקוד למעלה עבד מצוין על המחשב שלי, אבל כשהרצתי אותו ב-Github Actions הוא נתן תוצאות שונות בכל פעם
+בכל פעם שבדקתי את ה-hash של קובץ ה-zip קיבלתי תוצאה שונה, למרות שהקוד נשאר זהה לחלוטין.
+כשניסיתי לשחזר את הבעיה מקומית, גיליתי (בעזרתו האדיבה של ChatGPT) שהבעיה נובעת מכך שתיקיית ה-dist נוצרת מחדש בכל build, וכך משתנים נתוני ה-metadata של הקבצים.
+אז גם אם הקוד זהה לחלוטין בקובץ ה-zip יש metadata של כל הקבצים שכולל את תאריך היצירה שלהם.
+מכיוון שבכל build תיקיית ה-dist נוצרת מחדש, אז יש בעייה שקובץ ה-zip יהיה תמיד שונה.
+
+כדי לראות את את ה-metadata אפשר ליצור קובץ zip ואז לראות את ה-metadata באמצעות `unzip -l`
+```bash
+zip -rq9 target.zip target_directory
+unzip -l target.zip > metadata.txt
+```
+אם ניצור מחדש את target_directory, אפילו אם הקוד יהיה זהה לחלוטין, ה-metadata ישתנה.
+בעיה נוספת שיכולה לצוץ היא סדר הקבצים בתוך ה-zip.
+אפילו אם הקוד זהה לחלוטין אבל משום מה ב-zip הם מסודרים שונה בכל פעם, ה-hash ישתנה בין הריצות/
+אז מה עושים?
+## כך ניצור קובץ zip עם metadata זהה לחלוטין בכל ריצה
+```bash
+# קודם נעבור על כל הקבצים ונקבע שתאריך היצירה שלהם הוא תאריך שרירותי כלשהוא
+find target_directory -exec touch -t 202401010000 {} + && \
+# במקום ליצור zip מהתיקיה עצמה, נסדר את הקבצים בסדר אלפאנומרי ואז ניצור zip
+zip -rq9 target.zip $(find target_directory -type f | sort)
+```
+בצורה הזו, כל עוד הקוד שלנו נשאר זהה, ה-metadata של ה-zip לא יפריע לנו.
+בצורה הזו אנחנו חוסכים זמן, עלויות קטנות, ובעיקר מבטיחים שה-build שלנו יהיה צפוי ויציב
