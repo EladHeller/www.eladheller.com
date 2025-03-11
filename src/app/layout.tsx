@@ -7,8 +7,11 @@ import Footer from "@/components/Footer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "למדתי היום",
-  description: "בלוג על תכנות, טכנולוגיה וכל מה שמעניין אותי",
+  title: 'למדתי היום',
+  description: 'בלוג על תכנות, טכנולוגיה וכל מה שמעניין אותי',
+  icons: {
+    icon: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({

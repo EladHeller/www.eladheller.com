@@ -117,7 +117,7 @@ export default function Resume() {
 
           {/* Projects */}
           <div>
-            <h2 className="text-xl font-bold text-white print:text-black mb-4">Selected Projects</h2>
+            <h2 className="text-xl font-bold text-white print:text-black mb-4">Selected Side Projects</h2>
             <div className="space-y-4">
               <div>
                 <h3 className="text-lg font-bold text-white print:text-black">Wikipedia Update Bot</h3>
