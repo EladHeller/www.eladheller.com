@@ -38,7 +38,7 @@ export default function Home() {
     <div className="min-h-screen p-8 bg-gray-900">
       <main className="max-w-4xl mx-auto">
         <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold text-white mb-6">הבלוג שלי</h1>
+          <h1 className="text-5xl font-bold text-white mb-6">למדתי היום</h1>
           <p className="text-xl text-gray-300">
             ברוכים הבאים לבלוג שלי, כאן אני כותב על תכנות, טכנולוגיה וכל מה שמעניין אותי.
           </p>

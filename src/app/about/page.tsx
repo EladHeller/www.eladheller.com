@@ -6,11 +6,10 @@ export default function About() {
         <div className="bg-gray-800 rounded-lg p-8 shadow-lg">
           <p className="text-xl text-gray-300 leading-relaxed">
             ברוכים הבאים לבלוג שלי! כאן אני משתף את המחשבות והתובנות שלי בנושאי תכנות, טכנולוגיה, ופיתוח תוכנה.
-            המטרה שלי היא לחלוק ידע, ללמוד מאחרים, ולתרום לקהילת המפתחים בישראל.
+            פה בעיקר כדי לסדר את המחשבות שלי.
           </p>
           <p className="text-xl text-gray-300 leading-relaxed mt-6">
-            אני מאמין שלמידה היא תהליך מתמשך, ושיתוף ידע הוא חלק חשוב בתהליך הזה.
-            אשמח לשמוע את המחשבות והתגובות שלכם על התכנים שאני מפרסם כאן.
+            כרגע אני בתהליך חיפוש עבודה, אפשר לראות ולהוריד את: <a href="/resume" className="text-blue-300 hover:text-blue-400 transition-colors">קורות החיים שלי באתר</a>.
           </p>
         </div>
       </main>

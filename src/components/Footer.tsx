@@ -1,6 +1,6 @@
 "use client";
 
-import { FaGithub, FaLinkedin } from 'react-icons/fa';
+import { FaEnvelope, FaGithub, FaLinkedin } from 'react-icons/fa';
 
 export default function Footer() {
   return (
@@ -24,6 +24,15 @@ export default function Footer() {
             aria-label="LinkedIn"
           >
             <FaLinkedin />
+          </a>
+          <a 
+            href="mailto:me@eladheller.com" 
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-300 hover:text-blue-400 transition-colors text-2xl"
+            aria-label="LinkedIn"
+          >
+            <FaEnvelope />
           </a>
         </div>
         <p className="text-gray-400 text-sm">
