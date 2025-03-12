@@ -41,12 +41,9 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              Service: cloudfront.amazonaws.com
+              AWS: !Sub 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOriginAccessIdentity}'
             Action: s3:GetObject
             Resource: !Sub '${WebsiteBucket.Arn}/*'
-            Condition:
-              StringEquals:
-                AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}'
 
   # SSL Certificate
   Certificate:
