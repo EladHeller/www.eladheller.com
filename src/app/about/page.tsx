@@ -1,3 +1,6 @@
+"use client";
+import Link from 'next/link';
+
 export default function About() {
   return (
     <div className="min-h-screen p-8 bg-gray-900">
@@ -9,7 +12,13 @@ export default function About() {
             פה בעיקר כדי לסדר את המחשבות שלי.
           </p>
           <p className="text-xl text-gray-300 leading-relaxed mt-6">
-            כרגע אני בתהליך חיפוש עבודה, אפשר לראות ולהוריד את <a href="https://www.eladheller.com/resume.html" className="text-blue-300 hover:text-blue-400 transition-colors">קורות החיים שלי באתר</a>.
+            כרגע אני בתהליך חיפוש עבודה, אפשר לראות ולהוריד את{' '}
+            <Link 
+              href="/resume" 
+              className={`text-blue-300 hover:text-blue-400 transition-colors`}
+            >
+              קורות החיים שלי באתר
+            </Link>.
           </p>
         </div>
       </main>
