@@ -1,5 +1,6 @@
 'use client';
 
+import NextLink from 'next/link';
 import { ReactNode, useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -81,14 +82,30 @@ interface LinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   children: ReactNode;
 }
 
-export const Link = ({ children, href, ...props }: LinkProps) => (
-  <a
-    href={href}
-    className="text-blue-400 hover:text-blue-300 transition-colors decoration-blue-400/30 hover:decoration-blue-300"
-    target={href?.startsWith('http') ? '_blank' : undefined}
-    rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
-    {...props}
-  >
-    {children}
-  </a>
-); 
+export const Link = ({ children, href, ...props }: LinkProps) => {
+  // Use regular anchor for external links or anchor fragments
+  if (!href || href.startsWith('http') || href.startsWith('#')) {
+    return (
+      <a
+        href={href}
+        className="text-blue-400 hover:text-blue-300 transition-colors decoration-blue-400/30 hover:decoration-blue-300"
+        target={href?.startsWith('http') ? '_blank' : undefined}
+        rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
+        {...props}
+      >
+        {children}
+      </a>
+    );
+  }
+  
+  // Use Next.js Link for internal navigation
+  return (
+    <NextLink
+      href={href}
+      className="text-blue-400 hover:text-blue-300 transition-colors decoration-blue-400/30 hover:decoration-blue-300"
+      {...props}
+    >
+      {children}
+    </NextLink>
+  );
+};
