@@ -17,6 +17,7 @@
     "@tailwindcss/typography": "^0.5.16",
     "@types/mdx": "^2.0.13",
     "@types/react-syntax-highlighter": "^15.5.13",
+    "escape-html": "^1.0.3",
     "gray-matter": "^4.0.3",
     "next": "15.2.2",
     "next-mdx-remote": "^5.0.0",
@@ -29,12 +30,12 @@
     "rehype-highlight": "^7.0.2",
     "rehype-prism-plus": "^2.0.0",
     "remark-gfm": "^4.0.1",
-    "sanitize-filename": "^1.6.3",
-    "escape-html": "^1.0.3"
+    "sanitize-filename": "^1.6.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/escape-html": "^1.0.4",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
