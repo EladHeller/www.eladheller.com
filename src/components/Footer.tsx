@@ -30,13 +30,21 @@ export default function Footer() {
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-300 hover:text-blue-400 transition-colors text-2xl"
-            aria-label="LinkedIn"
+            aria-label="Email"
           >
             <FaEnvelope />
           </a>
         </div>
         <p className="text-gray-400 text-sm">
-          {new Date().getFullYear()} אלעד הלר
+          {new Date().getFullYear()} אלעד הלר • <a 
+            href="https://github.com/EladHeller/www.eladheller.com"
+            rel="noopener noreferrer"
+            className="text-blue-300 hover:text-blue-400 transition-colors"
+            aria-label="Source code"
+            target="_blank"
+          >
+            לקוד המקור
+          </a>
         </p>
       </div>
     </footer>
