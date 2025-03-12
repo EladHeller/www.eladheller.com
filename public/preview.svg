@@ -1,0 +1,32 @@
+<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#282C34"/>
+  
+  <!-- Terminal Icon -->
+  <text x="600" y="280"
+        fill="#61DAFB"
+        font-family="monospace"
+        font-size="120"
+        font-weight="bold"
+        text-anchor="middle">
+    &gt;_
+  </text>
+  
+  <!-- Blog Title -->
+  <text x="600" y="400"
+        fill="#FFFFFF"
+        font-family="Arial, sans-serif"
+        font-size="60"
+        font-weight="bold"
+        text-anchor="middle">
+    למדתי היום
+  </text>
+  
+  <!-- Tagline -->
+  <text x="600" y="480"
+        fill="#AAAAAA"
+        font-family="Arial, sans-serif"
+        font-size="36"
+        text-anchor="middle">
+    קוד • תוכנה • מחשבות
+  </text>
+</svg>
