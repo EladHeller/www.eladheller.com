@@ -177,7 +177,7 @@ Resources:
     Type: AWS::CloudFront::ResponseHeadersPolicy
     Properties:
       ResponseHeadersPolicyConfig:
-        Name: !Sub "${DomainName}-redirect-to-www"
+        Name: !Sub "eladheller-com-redirect-to-www"
         CustomHeadersConfig:
           Items:
             - Header: Location
