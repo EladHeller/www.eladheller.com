@@ -1,0 +1,132 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Infrastructure for www.eladheller.com static website'
+
+Parameters:
+  DomainName:
+    Type: String
+    Default: eladheller.com
+    Description: The domain name
+  
+  WebsiteSubDomain:
+    Type: String
+    Default: www
+    Description: The subdomain for the website
+    
+  HostedZoneId:
+    Type: AWS::Route53::HostedZone::Id
+    Description: The ID of the existing Route53 hosted zone
+
+Resources:
+  # S3 bucket for website hosting
+  WebsiteBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Sub '${WebsiteSubDomain}.${DomainName}'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+
+  # Bucket policy to allow CloudFront access
+  WebsiteBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref WebsiteBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub '${WebsiteBucket.Arn}/*'
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}'
+
+  # SSL Certificate
+  Certificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Sub '${WebsiteSubDomain}.${DomainName}'
+      ValidationMethod: DNS
+      DomainValidationOptions:
+        - DomainName: !Sub '${WebsiteSubDomain}.${DomainName}'
+          HostedZoneId: !Ref HostedZoneId
+
+  # CloudFront distribution
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Aliases:
+          - !Sub '${WebsiteSubDomain}.${DomainName}'
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          CachedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          Compress: true
+          DefaultTTL: 86400
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+        DefaultRootObject: index.html
+        CustomErrorResponses:
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+        Enabled: true
+        HttpVersion: http2
+        IPV6Enabled: true
+        Origins:
+          - DomainName: !GetAtt WebsiteBucket.RegionalDomainName
+            Id: S3Origin
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}'
+        PriceClass: PriceClass_100
+        ViewerCertificate:
+          AcmCertificateArn: !Ref Certificate
+          MinimumProtocolVersion: TLSv1.2_2021
+          SslSupportMethod: sni-only
+
+  # CloudFront Origin Access Identity
+  CloudFrontOriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Sub 'CloudFront OAI for ${WebsiteSubDomain}.${DomainName}'
+
+  # Route 53 record for website
+  WebsiteDNSRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Sub '${WebsiteSubDomain}.${DomainName}'
+      Type: A
+      AliasTarget:
+        DNSName: !GetAtt CloudFrontDistribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2 # This is CloudFront's fixed global hosted zone ID for alias records
+Outputs:
+  WebsiteURL:
+    Description: Website URL
+    Value: !Sub 'https://${WebsiteSubDomain}.${DomainName}'
+  
+  CloudFrontDomainName:
+    Description: CloudFront Domain Name
+    Value: !GetAtt CloudFrontDistribution.DomainName
+  
+  BucketName:
+    Description: S3 Bucket Name
+    Value: !Ref WebsiteBucket
