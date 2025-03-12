@@ -51,15 +51,11 @@ Resources:
     DeletionPolicy: Retain
     Properties:
       BucketName: !Ref DomainName
-      WebsiteConfiguration:
-        RedirectAllRequestsTo:
-          HostName: !Sub '${WebsiteSubDomain}.${DomainName}'
-          Protocol: https
       PublicAccessBlockConfiguration:
-        BlockPublicAcls: false
-        BlockPublicPolicy: false
-        IgnorePublicAcls: false
-        RestrictPublicBuckets: false
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
 
   # Bucket policy for root domain bucket
   RootDomainBucketPolicy:
@@ -70,7 +66,8 @@ Resources:
         Version: '2012-10-17'
         Statement:
           - Effect: Allow
-            Principal: '*'
+            Principal:
+              AWS: !Sub 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${RootDomainCloudFrontOAI}'
             Action: s3:GetObject
             Resource: !Sub '${RootDomainBucket.Arn}/*'
 
@@ -88,7 +85,7 @@ Resources:
         - DomainName: !Ref DomainName
           HostedZoneId: !Ref HostedZoneId
 
-  # CloudFront distribution
+  # CloudFront distribution for www subdomain
   CloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
@@ -134,12 +131,71 @@ Resources:
           MinimumProtocolVersion: TLSv1.2_2021
           SslSupportMethod: sni-only
 
-  # CloudFront Origin Access Identity
+  # CloudFront distribution for root domain (redirect)
+  RootDomainCloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Aliases:
+          - !Ref DomainName
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          CachedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          Compress: true
+          DefaultTTL: 86400
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+          TargetOriginId: RootS3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          ResponseHeadersPolicyId: !Ref RedirectHeadersPolicy
+        Enabled: true
+        HttpVersion: http2
+        IPV6Enabled: true
+        Origins:
+          - DomainName: !GetAtt RootDomainBucket.RegionalDomainName
+            Id: RootS3Origin
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${RootDomainCloudFrontOAI}'
+        PriceClass: PriceClass_100
+        ViewerCertificate:
+          AcmCertificateArn: !Ref Certificate
+          MinimumProtocolVersion: TLSv1.2_2021
+          SslSupportMethod: sni-only
+
+  # Response Headers Policy for redirecting to www
+  RedirectHeadersPolicy:
+    Type: AWS::CloudFront::ResponseHeadersPolicy
+    Properties:
+      ResponseHeadersPolicyConfig:
+        Name: !Sub "${DomainName}-redirect-to-www"
+        CustomHeadersConfig:
+          Items:
+            - Header: Location
+              Value: !Sub "https://${WebsiteSubDomain}.${DomainName}${RequestURI}"
+              Override: true
+        Comment: "Redirect to www domain"
+
+  # CloudFront Origin Access Identity for main site
   CloudFrontOriginAccessIdentity:
     Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
     Properties:
       CloudFrontOriginAccessIdentityConfig:
         Comment: !Sub 'CloudFront OAI for ${WebsiteSubDomain}.${DomainName}'
+
+  # CloudFront Origin Access Identity for root domain
+  RootDomainCloudFrontOAI:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Sub 'CloudFront OAI for ${DomainName}'
 
   # Route 53 record for website
   WebsiteDNSRecord:
@@ -160,8 +216,61 @@ Resources:
       Name: !Ref DomainName
       Type: A
       AliasTarget:
-        DNSName: s3-website-us-east-1.amazonaws.com
-        HostedZoneId: Z3AQBSTGFYJSTF  # This is S3 website endpoint's hosted zone ID for us-east-1
+        DNSName: !GetAtt RootDomainCloudFrontDistribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2 # CloudFront hosted zone ID
+
+  # Add IPv6 support for the website
+  WebsiteDNSRecordIPv6:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Sub '${WebsiteSubDomain}.${DomainName}'
+      Type: AAAA
+      AliasTarget:
+        DNSName: !GetAtt CloudFrontDistribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2 
+
+  # Add IPv6 support for the root domain
+  RootDomainDNSRecordIPv6:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref DomainName
+      Type: AAAA
+      AliasTarget:
+        DNSName: !GetAtt RootDomainCloudFrontDistribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2 
+
+  # Function for URL rewriting
+  RedirectFunction:
+    Type: AWS::CloudFront::Function
+    Properties:
+      Name: RedirectToWww
+      AutoPublish: true
+      FunctionConfig:
+        Comment: "Redirect apex domain to www subdomain"
+        Runtime: cloudfront-js-1.0
+      FunctionCode: |
+        function handler(event) {
+          var request = event.request;
+          var headers = request.headers;
+          var host = headers.host.value;
+          var uri = request.uri;
+          
+          // If apex domain, redirect to www
+          if (host === 'eladheller.com') {
+            var response = {
+              statusCode: 301,
+              statusDescription: 'Moved Permanently',
+              headers: {
+                'location': { value: 'https://www.eladheller.com' + uri }
+              }
+            };
+            return response;
+          }
+          
+          return request;
+        }
 
 Outputs:
   WebsiteURL:
@@ -175,6 +284,7 @@ Outputs:
   BucketName:
     Description: S3 Bucket Name
     Value: !Ref WebsiteBucket
+  
   CloudFrontDistributionId:
     Description: CloudFront Distribution ID
     Value: !Ref CloudFrontDistribution
