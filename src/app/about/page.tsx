@@ -14,7 +14,7 @@ export default function About() {
           <p className="text-xl text-gray-300 leading-relaxed mt-6">
             כרגע אני בתהליך חיפוש עבודה, אפשר לראות ולהוריד את{' '}
             <Link 
-              href="/resume" 
+              href="https://www.eladheller.com/resume.html" 
               className={`text-blue-300 hover:text-blue-400 transition-colors`}
             >
               קורות החיים שלי באתר
