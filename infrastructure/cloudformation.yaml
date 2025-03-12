@@ -45,14 +45,47 @@ Resources:
             Action: s3:GetObject
             Resource: !Sub '${WebsiteBucket.Arn}/*'
 
-  # SSL Certificate
+  # Root domain S3 bucket for redirect
+  RootDomainBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Ref DomainName
+      WebsiteConfiguration:
+        RedirectAllRequestsTo:
+          HostName: !Sub '${WebsiteSubDomain}.${DomainName}'
+          Protocol: https
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+
+  # Bucket policy for root domain bucket
+  RootDomainBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref RootDomainBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action: s3:GetObject
+            Resource: !Sub '${RootDomainBucket.Arn}/*'
+
+  # SSL Certificate for both domains
   Certificate:
     Type: AWS::CertificateManager::Certificate
     Properties:
       DomainName: !Sub '${WebsiteSubDomain}.${DomainName}'
+      SubjectAlternativeNames:
+        - !Ref DomainName
       ValidationMethod: DNS
       DomainValidationOptions:
         - DomainName: !Sub '${WebsiteSubDomain}.${DomainName}'
+          HostedZoneId: !Ref HostedZoneId
+        - DomainName: !Ref DomainName
           HostedZoneId: !Ref HostedZoneId
 
   # CloudFront distribution
@@ -118,6 +151,18 @@ Resources:
       AliasTarget:
         DNSName: !GetAtt CloudFrontDistribution.DomainName
         HostedZoneId: Z2FDTNDATAQYW2 # This is CloudFront's fixed global hosted zone ID for alias records
+
+  # Root domain DNS record
+  RootDomainDNSRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref DomainName
+      Type: A
+      AliasTarget:
+        DNSName: s3-website-us-east-1.amazonaws.com
+        HostedZoneId: Z3AQBSTGFYJSTF  # This is S3 website endpoint's hosted zone ID for us-east-1
+
 Outputs:
   WebsiteURL:
     Description: Website URL
