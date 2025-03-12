@@ -130,3 +130,6 @@ Outputs:
   BucketName:
     Description: S3 Bucket Name
     Value: !Ref WebsiteBucket
+  CloudFrontDistributionId:
+    Description: CloudFront Distribution ID
+    Value: !Ref CloudFrontDistribution
