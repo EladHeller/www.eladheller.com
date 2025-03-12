@@ -2,6 +2,8 @@ import Link from 'next/link';
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
+import sanitize from 'sanitize-filename';
+import escapeHtml from 'escape-html';
 
 interface Post {
   slug: string;
@@ -24,7 +26,7 @@ function getPosts(): Post[] {
       const { data } = matter(fileContents);
       
       return {
-        slug: fileName.replace(/\.mdx$/, ''),
+        slug: sanitize(fileName.replace(/\.mdx$/, '')),
         frontmatter: data as Post['frontmatter'],
       };
     })
@@ -53,7 +55,7 @@ export default function Home() {
                   {new Date(post.frontmatter.date).toLocaleDateString('he-IL')}
                 </time>
                 <h3 className="text-2xl font-bold mb-3">
-                  <Link href={`/blog/${post.slug}`} className="text-white hover:text-blue-400 transition-colors">
+                  <Link href={`/blog/${escapeHtml(post.slug)}`} className="text-white hover:text-blue-400 transition-colors">
                     {post.frontmatter.title}
                   </Link>
                 </h3>
