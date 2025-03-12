@@ -1,0 +1,27 @@
+---
+title: "איך בניתי את האתר הזה מאפס עם Next.js"
+description: "מדריך מקיף לבניית בלוג אישי מודרני באמצעות Next.js, MDX, Tailwind CSS ו-Contentlayer"
+date: 2023-12-15
+---
+
+# איך לבנות בלוג מודרני עם Next.js מאפס
+
+שלום לכולם! באתר הזה אני משתמש במספר טכנולוגיות מודרניות שביחד מאפשרות לי לכתוב תוכן בקלות, ליהנות מביצועים מעולים ומחוויית משתמש נהדרת. במאמר זה אסביר איך בניתי את האתר הזה מאפס.
+
+## הטכנולוגיות העיקריות בהן השתמשתי
+
+- **Next.js** - פריימוורק React המספק תכונות כמו SSG (Static Site Generation) ו-ISR (Incremental Static Regeneration)
+- **TypeScript** - להוספת טיפוסים וחוויית פיתוח משופרת
+- **Tailwind CSS** - לעיצוב מהיר ונוח
+- **MDX** - לכתיבת תוכן במרקדאון עם אפשרות לשלב קומפוננטות React
+- **Contentlayer** - לניהול תוכן מבוסס קבצים וטיפוסים חזק
+
+## שלב 1: הקמת פרויקט Next.js בסיסי
+
+ראשית, נקים פרויקט Next.js חדש עם TypeScript ו-Tailwind CSS:
+```bash
+npx create-next-app@latest my-blog --typescript
+cd my-blog
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+```
