@@ -150,12 +150,14 @@ Resources:
           Compress: true
           DefaultTTL: 86400
           ForwardedValues:
-            QueryString: false
+            QueryString: true
             Cookies:
               Forward: none
           TargetOriginId: RootS3Origin
           ViewerProtocolPolicy: redirect-to-https
-          ResponseHeadersPolicyId: !Ref RedirectHeadersPolicy
+          FunctionAssociations:
+            - EventType: viewer-request
+              FunctionARN: !GetAtt RedirectFunction.FunctionARN
         Enabled: true
         HttpVersion: http2
         IPV6Enabled: true
@@ -179,7 +181,7 @@ Resources:
         CustomHeadersConfig:
           Items:
             - Header: Location
-              Value: !Sub "https://${WebsiteSubDomain}.${DomainName}${RequestURI}"
+              Value: !Sub "https://${WebsiteSubDomain}.${DomainName}/"
               Override: true
         Comment: "Redirect to www domain"
 
@@ -257,16 +259,36 @@ Resources:
           var host = headers.host.value;
           var uri = request.uri;
           
-          // If apex domain, redirect to www
+          // Check if this is the apex domain (eladheller.com)
           if (host === 'eladheller.com') {
-            var response = {
+            // Preserve the path and querystring parameters
+            var redirectUrl = 'https://www.eladheller.com' + uri;
+            
+            if (request.querystring) {
+              var params = request.querystring;
+              var queryParams = [];
+              
+              for (var param in params) {
+                if (params[param].value === '') {
+                  queryParams.push(param);
+                } else {
+                  queryParams.push(param + '=' + params[param].value);
+                }
+              }
+              
+              if (queryParams.length > 0) {
+                redirectUrl += '?' + queryParams.join('&');
+              }
+            }
+            
+            return {
               statusCode: 301,
               statusDescription: 'Moved Permanently',
               headers: {
-                'location': { value: 'https://www.eladheller.com' + uri }
+                'location': { value: redirectUrl },
+                'cache-control': { value: 'max-age=3600' }
               }
             };
-            return response;
           }
           
           return request;
