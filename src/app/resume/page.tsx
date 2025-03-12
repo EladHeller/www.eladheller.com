@@ -1,6 +1,6 @@
 "use client";
 
-import { FaGithub, FaLinkedin, FaEnvelope, FaFilePdf } from 'react-icons/fa';
+import { FaGithub, FaLinkedin, FaEnvelope, FaFilePdf, FaGlobe } from 'react-icons/fa';
 import { useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import type { MouseEvent } from 'react';
@@ -51,6 +51,10 @@ export default function Resume() {
                 <a href="mailto:job@eladheller.com" className="flex items-center gap-2 text-blue-300 print:text-blue-700 hover:text-blue-400 transition-colors">
                   <FaEnvelope className="text-xl" />
                   <span>job@eladheller.com</span>
+                </a>
+                <a href="https://www.eladheller.com" className="flex items-center gap-2 text-blue-300 print:text-blue-700 hover:text-blue-400 transition-colors">
+                  <FaGlobe className="text-xl" />
+                  <span>Website</span>
                 </a>
               </div>
             </div>
