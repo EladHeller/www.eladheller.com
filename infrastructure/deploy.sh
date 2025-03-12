@@ -32,19 +32,43 @@ aws s3 sync ./out s3://$BUCKET_NAME
 
 # Get CloudFront distribution ID from CloudFormation outputs
 echo "Getting CloudFront distribution ID..."
+
 DISTRIBUTION_ID=$(aws cloudformation describe-stacks \
   --stack-name blog-infrastructure \
-  --query 'Stacks[0].Outputs[?OutputKey==`CloudFrontDomainName`].OutputValue' \
+  --query 'Stacks[0].Outputs[?OutputKey==`CloudFrontDistributionId`].OutputValue' \
   --output text)
 
-if [ -z "$DISTRIBUTION_ID" ]; then
-  # Fallback method if output is not available
-  DISTRIBUTION_ID=$(aws cloudfront list-distributions \
-    --query "DistributionList.Items[?Aliases.Items[?contains(@, 'www.eladheller.com')]].Id" \
+# If the output doesn't exist, try getting it another way
+if [ -z "$DISTRIBUTION_ID" ] || [ "$DISTRIBUTION_ID" = "None" ]; then
+  echo "Distribution ID not found in outputs, looking it up by domain..."
+  # Get the CloudFront domain name first
+  CLOUDFRONT_DOMAIN=$(aws cloudformation describe-stacks \
+    --stack-name blog-infrastructure \
+    --query 'Stacks[0].Outputs[?OutputKey==`CloudFrontDomainName`].OutputValue' \
     --output text)
+    
+  echo "Found CloudFront domain: $CLOUDFRONT_DOMAIN"
+  
+  # Use the domain to find the distribution ID
+  DISTRIBUTION_ID=$(aws cloudfront list-distributions \
+    --query "DistributionList.Items[?DomainName=='$CLOUDFRONT_DOMAIN'].Id" \
+    --output text)
+    
+  # If still empty, try with aliases
+  if [ -z "$DISTRIBUTION_ID" ] || [ "$DISTRIBUTION_ID" = "None" ]; then
+    echo "Looking up by alias..."
+    DISTRIBUTION_ID=$(aws cloudfront list-distributions \
+      --query "DistributionList.Items[?contains(Aliases.Items, 'www.eladheller.com')].Id" \
+      --output text)
+  fi
 fi
 
-echo "Invalidating CloudFront cache for distribution: $DISTRIBUTION_ID"
+if [ -z "$DISTRIBUTION_ID" ] || [ "$DISTRIBUTION_ID" = "None" ]; then
+  echo "Error: Could not find CloudFront distribution ID"
+  exit 1
+fi
+
+echo "Invalidating CloudFront cache for distribution ID: $DISTRIBUTION_ID"
 # Invalidate CloudFront cache
 aws cloudfront create-invalidation \
   --distribution-id $DISTRIBUTION_ID \
