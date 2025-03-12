@@ -19,11 +19,6 @@ aws cloudformation deploy \
     HostedZoneId=$HOSTED_ZONE_ID \
   --capabilities CAPABILITY_IAM
 
-# Build the website
-echo "Building website..."
-cd ..
-npm run build
-
 # Get the bucket name from CloudFormation outputs
 echo "Getting S3 bucket name from CloudFormation outputs..."
 BUCKET_NAME=$(aws cloudformation describe-stacks \
