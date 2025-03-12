@@ -13,7 +13,7 @@ fi
 # Deploy or update CloudFormation stack
 echo "Deploying CloudFormation stack with hosted zone ID: $HOSTED_ZONE_ID"
 aws cloudformation deploy \
-  --template-file cloudformation.yaml \
+  --template-file ./infrastructure/cloudformation.yaml \
   --stack-name blog-infrastructure \
   --parameter-overrides \
     HostedZoneId=$HOSTED_ZONE_ID \
