@@ -14,11 +14,11 @@ Parameters:
   
   Environment:
     Type: String
-    Default: prod
-    Description: Deployment environment (prod or dev)
+    Default: production
+    Description: Deployment environment (production or develop)
     AllowedValues:
-      - prod
-      - dev
+      - production
+      - develop
     
   HostedZoneId:
     Type: AWS::Route53::HostedZone::Id
@@ -33,7 +33,7 @@ Parameters:
     Description: Whether to create the root domain redirect
 
 Conditions:
-  IsProd: !Equals [ !Ref Environment, "prod" ]
+  IsProd: !Equals [ !Ref Environment, "production" ]
   CreateRootDomainRedirect: !Equals [ !Ref EnableRootDomainRedirect, "true" ]
 
 Resources:
