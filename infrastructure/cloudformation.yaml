@@ -157,9 +157,9 @@ Resources:
           AcmCertificateArn: !Ref Certificate
           MinimumProtocolVersion: TLSv1.2_2021
           SslSupportMethod: sni-only
-        Tags:
-          - Key: Environment
-            Value: !Ref Environment
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
 
   # CloudFront Origin Access Identity for main site
   CloudFrontOriginAccessIdentity:
