@@ -12,7 +12,35 @@ export default function Resume() {
   const handlePrint = useReactToPrint({
     contentRef: componentRef,
     documentTitle: 'Elad Heller - Resume',
-    pageStyle: '@page { size: A4; margin: 2cm }',
+    pageStyle: `
+      @page { 
+        size: A4; 
+        margin: 2cm; 
+      }
+      @media print {
+        body {
+          -webkit-print-color-adjust: exact;
+        }
+      }
+      .print\\:bg-white {
+        background-color: white;
+      }
+      .print\\:text-black {
+        color: black;
+      }
+      .print\\:text-gray-700 {
+        color: #4a5568;
+      }
+      .print\\:text-blue-700 {
+        color: #2b6cb0;
+      }
+      .print\\:bg-blue-100 {
+        background-color: #ebf8ff;
+      }
+      .print\\:text-blue-900 {
+        color: #2a4365;
+      }
+    `,
   } as UseReactToPrintOptions);
 
   const onPrintClick = (e: MouseEvent<HTMLButtonElement>) => {
@@ -154,7 +182,7 @@ export default function Resume() {
                 <h3 className="text-lg font-bold text-white print:text-black">Israel election results</h3>
                 <p className="text-base text-gray-300 print:text-gray-700">Israel election results in real time.</p>
                 <p className="text-sm text-gray-400 print:text-gray-500">Node.js, Typescript, AWS Lambda, AWS Cloudformation</p>
-                <a href="https://github.com/EladHeller/passkol" target="_blank" rel="noopener noreferrer" className="text-blue-300 print:text-blue-700 hover:text-blue-400 transition-colors inline-flex items-center gap-2 mt-2">
+                <a href="https://github.com/EladHeller/israel-elections" target="_blank" rel="noopener noreferrer" className="text-blue-300 print:text-blue-700 hover:text-blue-400 transition-colors inline-flex items-center gap-2 mt-2">
                   <FaGithub />
                   <span>View Code</span>
                 </a>
