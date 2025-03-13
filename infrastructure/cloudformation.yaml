@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'Infrastructure for www.eladheller.com static website'
+Description: 'Infrastructure for eladheller.com static website'
 
 Parameters:
   DomainName:
@@ -11,10 +11,30 @@ Parameters:
     Type: String
     Default: www
     Description: The subdomain for the website
+  
+  Environment:
+    Type: String
+    Default: prod
+    Description: Deployment environment (prod or dev)
+    AllowedValues:
+      - prod
+      - dev
     
   HostedZoneId:
     Type: AWS::Route53::HostedZone::Id
     Description: The ID of the existing Route53 hosted zone
+
+  EnableRootDomainRedirect:
+    Type: String
+    Default: "true"
+    AllowedValues:
+      - "true"
+      - "false"
+    Description: Whether to create the root domain redirect
+
+Conditions:
+  IsProd: !Equals [ !Ref Environment, "prod" ]
+  CreateRootDomainRedirect: !Equals [ !Ref EnableRootDomainRedirect, "true" ]
 
 Resources:
   # S3 bucket for website hosting
@@ -45,9 +65,10 @@ Resources:
             Action: s3:GetObject
             Resource: !Sub '${WebsiteBucket.Arn}/*'
 
-  # Root domain S3 bucket for redirect
+  # Root domain S3 bucket for redirect (conditional)
   RootDomainBucket:
     Type: AWS::S3::Bucket
+    Condition: CreateRootDomainRedirect
     DeletionPolicy: Retain
     Properties:
       BucketName: !Ref DomainName
@@ -57,9 +78,10 @@ Resources:
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
 
-  # Bucket policy for root domain bucket
+  # Bucket policy for root domain bucket (conditional)
   RootDomainBucketPolicy:
     Type: AWS::S3::BucketPolicy
+    Condition: CreateRootDomainRedirect
     Properties:
       Bucket: !Ref RootDomainBucket
       PolicyDocument:
@@ -71,21 +93,26 @@ Resources:
             Action: s3:GetObject
             Resource: !Sub '${RootDomainBucket.Arn}/*'
 
-  # SSL Certificate for both domains
+  # SSL Certificate for domains
   Certificate:
     Type: AWS::CertificateManager::Certificate
     Properties:
       DomainName: !Sub '${WebsiteSubDomain}.${DomainName}'
-      SubjectAlternativeNames:
-        - !Ref DomainName
+      SubjectAlternativeNames: !If 
+        - CreateRootDomainRedirect
+        - [ !Ref DomainName ]
+        - []
       ValidationMethod: DNS
       DomainValidationOptions:
         - DomainName: !Sub '${WebsiteSubDomain}.${DomainName}'
           HostedZoneId: !Ref HostedZoneId
-        - DomainName: !Ref DomainName
-          HostedZoneId: !Ref HostedZoneId
+        - !If 
+          - CreateRootDomainRedirect
+          - DomainName: !Ref DomainName
+            HostedZoneId: !Ref HostedZoneId
+          - !Ref AWS::NoValue
 
-  # CloudFront distribution for www subdomain
+  # CloudFront distribution for website
   CloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
@@ -102,7 +129,7 @@ Resources:
             - HEAD
             - OPTIONS
           Compress: true
-          DefaultTTL: 86400
+          DefaultTTL: !If [IsProd, 86400, 60]  # Different cache TTL based on environment
           ForwardedValues:
             QueryString: false
             Cookies:
@@ -130,60 +157,9 @@ Resources:
           AcmCertificateArn: !Ref Certificate
           MinimumProtocolVersion: TLSv1.2_2021
           SslSupportMethod: sni-only
-
-  # CloudFront distribution for root domain (redirect)
-  RootDomainCloudFrontDistribution:
-    Type: AWS::CloudFront::Distribution
-    Properties:
-      DistributionConfig:
-        Aliases:
-          - !Ref DomainName
-        DefaultCacheBehavior:
-          AllowedMethods:
-            - GET
-            - HEAD
-            - OPTIONS
-          CachedMethods:
-            - GET
-            - HEAD
-            - OPTIONS
-          Compress: true
-          DefaultTTL: 86400
-          ForwardedValues:
-            QueryString: true
-            Cookies:
-              Forward: none
-          TargetOriginId: RootS3Origin
-          ViewerProtocolPolicy: redirect-to-https
-          FunctionAssociations:
-            - EventType: viewer-request
-              FunctionARN: !GetAtt RedirectFunction.FunctionARN
-        Enabled: true
-        HttpVersion: http2
-        IPV6Enabled: true
-        Origins:
-          - DomainName: !GetAtt RootDomainBucket.RegionalDomainName
-            Id: RootS3Origin
-            S3OriginConfig:
-              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${RootDomainCloudFrontOAI}'
-        PriceClass: PriceClass_100
-        ViewerCertificate:
-          AcmCertificateArn: !Ref Certificate
-          MinimumProtocolVersion: TLSv1.2_2021
-          SslSupportMethod: sni-only
-
-  # Response Headers Policy for redirecting to www
-  RedirectHeadersPolicy:
-    Type: AWS::CloudFront::ResponseHeadersPolicy
-    Properties:
-      ResponseHeadersPolicyConfig:
-        Name: !Sub "eladheller-com-redirect-to-www"
-        CustomHeadersConfig:
-          Items:
-            - Header: Location
-              Value: !Sub "https://${WebsiteSubDomain}.${DomainName}/"
-              Override: true
-        Comment: "Redirect to www domain"
+        Tags:
+          - Key: Environment
+            Value: !Ref Environment
 
   # CloudFront Origin Access Identity for main site
   CloudFrontOriginAccessIdentity:
@@ -191,13 +167,6 @@ Resources:
     Properties:
       CloudFrontOriginAccessIdentityConfig:
         Comment: !Sub 'CloudFront OAI for ${WebsiteSubDomain}.${DomainName}'
-
-  # CloudFront Origin Access Identity for root domain
-  RootDomainCloudFrontOAI:
-    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
-    Properties:
-      CloudFrontOriginAccessIdentityConfig:
-        Comment: !Sub 'CloudFront OAI for ${DomainName}'
 
   # Route 53 record for website
   WebsiteDNSRecord:
@@ -208,18 +177,7 @@ Resources:
       Type: A
       AliasTarget:
         DNSName: !GetAtt CloudFrontDistribution.DomainName
-        HostedZoneId: Z2FDTNDATAQYW2 # This is CloudFront's fixed global hosted zone ID for alias records
-
-  # Root domain DNS record
-  RootDomainDNSRecord:
-    Type: AWS::Route53::RecordSet
-    Properties:
-      HostedZoneId: !Ref HostedZoneId
-      Name: !Ref DomainName
-      Type: A
-      AliasTarget:
-        DNSName: !GetAtt RootDomainCloudFrontDistribution.DomainName
-        HostedZoneId: Z2FDTNDATAQYW2 # CloudFront hosted zone ID
+        HostedZoneId: Z2FDTNDATAQYW2 # This is CloudFront's fixed global hosted zone ID
 
   # Add IPv6 support for the website
   WebsiteDNSRecordIPv6:
@@ -230,39 +188,37 @@ Resources:
       Type: AAAA
       AliasTarget:
         DNSName: !GetAtt CloudFrontDistribution.DomainName
-        HostedZoneId: Z2FDTNDATAQYW2 
+        HostedZoneId: Z2FDTNDATAQYW2
 
-  # Add IPv6 support for the root domain
-  RootDomainDNSRecordIPv6:
-    Type: AWS::Route53::RecordSet
+  # The following resources are conditional based on CreateRootDomainRedirect
+
+  # CloudFront Origin Access Identity for root domain
+  RootDomainCloudFrontOAI:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Condition: CreateRootDomainRedirect
     Properties:
-      HostedZoneId: !Ref HostedZoneId
-      Name: !Ref DomainName
-      Type: AAAA
-      AliasTarget:
-        DNSName: !GetAtt RootDomainCloudFrontDistribution.DomainName
-        HostedZoneId: Z2FDTNDATAQYW2 
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Sub 'CloudFront OAI for ${DomainName}'
 
   # Function for URL rewriting
   RedirectFunction:
     Type: AWS::CloudFront::Function
+    Condition: CreateRootDomainRedirect
     Properties:
-      Name: RedirectToWww
+      Name: !Sub "RedirectToWww-${Environment}"
       AutoPublish: true
       FunctionConfig:
         Comment: "Redirect apex domain to www subdomain"
         Runtime: cloudfront-js-1.0
-      FunctionCode: |
+      FunctionCode: !Sub |
         function handler(event) {
           var request = event.request;
           var headers = request.headers;
           var host = headers.host.value;
           var uri = request.uri;
           
-          // Check if this is the apex domain (eladheller.com)
-          if (host === 'eladheller.com') {
-            // Preserve the path and querystring parameters
-            var redirectUrl = 'https://www.eladheller.com' + uri;
+          if (host === '${DomainName}') {
+            var redirectUrl = 'https://${WebsiteSubDomain}.${DomainName}' + uri;
             
             if (request.querystring) {
               var params = request.querystring;
@@ -294,6 +250,75 @@ Resources:
           return request;
         }
 
+  # CloudFront distribution for root domain (redirect)
+  RootDomainCloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Condition: CreateRootDomainRedirect
+    Properties:
+      DistributionConfig:
+        Aliases:
+          - !Ref DomainName
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          CachedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          Compress: true
+          DefaultTTL: !If [IsProd, 86400, 60]
+          ForwardedValues:
+            QueryString: true
+            Cookies:
+              Forward: none
+          TargetOriginId: RootS3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          FunctionAssociations:
+            - EventType: viewer-request
+              FunctionARN: !GetAtt RedirectFunction.FunctionARN
+        Enabled: true
+        HttpVersion: http2
+        IPV6Enabled: true
+        Origins:
+          - DomainName: !If
+              - CreateRootDomainRedirect
+              - !GetAtt RootDomainBucket.RegionalDomainName
+              - !GetAtt WebsiteBucket.RegionalDomainName
+            Id: RootS3Origin
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${RootDomainCloudFrontOAI}'
+        PriceClass: PriceClass_100
+        ViewerCertificate:
+          AcmCertificateArn: !Ref Certificate
+          MinimumProtocolVersion: TLSv1.2_2021
+          SslSupportMethod: sni-only
+
+  # Root domain DNS record
+  RootDomainDNSRecord:
+    Type: AWS::Route53::RecordSet
+    Condition: CreateRootDomainRedirect
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref DomainName
+      Type: A
+      AliasTarget:
+        DNSName: !GetAtt RootDomainCloudFrontDistribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2
+
+  # Add IPv6 support for the root domain
+  RootDomainDNSRecordIPv6:
+    Type: AWS::Route53::RecordSet
+    Condition: CreateRootDomainRedirect
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref DomainName
+      Type: AAAA
+      AliasTarget:
+        DNSName: !GetAtt RootDomainCloudFrontDistribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2
+
 Outputs:
   WebsiteURL:
     Description: Website URL
@@ -310,3 +335,7 @@ Outputs:
   CloudFrontDistributionId:
     Description: CloudFront Distribution ID
     Value: !Ref CloudFrontDistribution
+
+  Environment:
+    Description: Deployment Environment
+    Value: !Ref Environment

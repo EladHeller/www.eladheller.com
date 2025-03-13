@@ -6,14 +6,39 @@ permissions:
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+      - develop
 
 jobs:
+  env_detect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Detect env
+        id: branch_check
+        run: |
+          echo "Running on branch ${{ github.ref }}"
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "env_name=production" >> $GITHUB_OUTPUT
+            echo "website_url=https://www.eladheller.com" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref }}" = "refs/heads/develop" ]; then
+            echo "env_name=develop" >> $GITHUB_OUTPUT
+            echo "website_url=https://dev-www.eladheller.com" >> $GITHUB_OUTPUT
+          fi
+      - name: Use variable setup in previous step
+        run: echo "I'm using variable ${{ steps.branch_check.outputs.env_name }}"
+    outputs:
+      env_name: ${{ steps.branch_check.outputs.env_name }}
+      website_url: ${{ steps.branch_check.outputs.website_url }}
+
+
   deploy:
     runs-on: ubuntu-latest
+    needs:
+      - env_detect
     environment: 
-      name: production
-      url: https://www.eladheller.com
+      name: ${{ needs.env_detect.outputs.env_name }}
+      url: ${{ needs.env_detect.outputs.website_url }}
     steps:
     - uses: actions/checkout@v4
 
@@ -36,5 +61,6 @@ jobs:
     - name: Build and Deploy
       run: |
         export HOSTED_ZONE_ID=${{ secrets.ROUTE53_HOSTED_ZONE_ID }}
+        export ENVIRONMENT=${{ needs.env_detect.outputs.env_name }}
         npm run build
         ./infrastructure/deploy.sh 
