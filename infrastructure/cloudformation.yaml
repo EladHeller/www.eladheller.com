@@ -126,7 +126,7 @@ Resources:
           var request = event.request;
           var uri = request.uri;
 
-          if (!uri.includes('.')) {
+          if (!uri.includes('.') && uri !== '/') {
               if (uri.endsWith('/')) {
                   request.uri += 'index.html';
               } else {
@@ -162,7 +162,7 @@ Resources:
           TargetOriginId: S3Origin
           ViewerProtocolPolicy: redirect-to-https
           FunctionAssociations:
-            - EventType: origin-request
+            - EventType: viewer-request
               FunctionARN: !GetAtt AppendIndexHtmlFunction.FunctionARN
         DefaultRootObject: index.html
         CustomErrorResponses:
