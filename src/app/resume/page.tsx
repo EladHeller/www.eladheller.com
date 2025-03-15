@@ -92,7 +92,7 @@ export default function Resume() {
                 <span className="px-3 py-1 bg-blue-900 print:bg-blue-100 text-blue-300 print:text-blue-900 rounded-full">Node.js</span>
                 <span className="px-3 py-1 bg-blue-900 print:bg-blue-100 text-blue-300 print:text-blue-900 rounded-full">TypeScript</span>
                 <span className="px-3 py-1 bg-blue-900 print:bg-blue-100 text-blue-300 print:text-blue-900 rounded-full">React</span>
-                <span className="px-3 py-1 bg-blue-900 print:bg-blue-100 text-blue-300 print:text-blue-900 rounded-full">AWS</span>
+                <span className="px-3 py-1 bg-blue-900 print:bg-blue-100 text-blue-300 print:text-blue-900 rounded-full">AWS Lambda</span>
               </div>
             </div>
           </div>
