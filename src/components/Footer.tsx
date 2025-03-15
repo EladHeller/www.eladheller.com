@@ -39,7 +39,7 @@ export default function Footer() {
           {new Date().getFullYear()} אלעד הלר • <a 
             href="https://github.com/EladHeller/www.eladheller.com"
             rel="noopener noreferrer"
-            className="text-blue-300 hover:text-blue-400 transition-colors"
+            className="hover:text-blue-200 transition-colors"
             aria-label="Source code"
             target="_blank"
           >
