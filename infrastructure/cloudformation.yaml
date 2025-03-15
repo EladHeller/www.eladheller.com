@@ -112,6 +112,31 @@ Resources:
             HostedZoneId: !Ref HostedZoneId
           - !Ref AWS::NoValue
 
+  # CloudFront function to append /index.html
+  AppendIndexHtmlFunction:
+    Type: AWS::CloudFront::Function
+    Properties:
+      Name: AppendIndexHtml
+      AutoPublish: true
+      FunctionConfig:
+        Comment: "Append /index.html to folder requests"
+        Runtime: cloudfront-js-1.0
+      FunctionCode: |
+        function handler(event) {
+          var request = event.request;
+          var uri = request.uri;
+
+          if (!uri.includes('.')) {
+              if (uri.endsWith('/')) {
+                  request.uri += 'index.html';
+              } else {
+                  request.uri += '/index.html';
+              }
+          }
+
+          return request;
+        }
+
   # CloudFront distribution for website
   CloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
@@ -129,13 +154,16 @@ Resources:
             - HEAD
             - OPTIONS
           Compress: true
-          DefaultTTL: !If [IsProd, 86400, 60]  # Different cache TTL based on environment
+          DefaultTTL: !If [IsProd, 86400, 60]
           ForwardedValues:
             QueryString: false
             Cookies:
               Forward: none
           TargetOriginId: S3Origin
           ViewerProtocolPolicy: redirect-to-https
+          FunctionAssociations:
+            - EventType: origin-request
+              FunctionARN: !GetAtt AppendIndexHtmlFunction.FunctionARN
         DefaultRootObject: index.html
         CustomErrorResponses:
           - ErrorCode: 403
