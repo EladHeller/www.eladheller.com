@@ -116,7 +116,7 @@ Resources:
   AppendIndexHtmlFunction:
     Type: AWS::CloudFront::Function
     Properties:
-      Name: AppendIndexHtml
+      Name: !Sub "AppendIndexHtml-${Environment}"
       AutoPublish: true
       FunctionConfig:
         Comment: "Append /index.html to folder requests"
