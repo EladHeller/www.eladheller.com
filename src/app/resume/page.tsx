@@ -8,7 +8,7 @@ import type { UseReactToPrintOptions } from 'react-to-print';
 
 export default function Resume() {
   const componentRef = useRef<HTMLDivElement>(null);
-  
+  const isDev = process.env.NODE_ENV === 'development';
   const handlePrint = useReactToPrint({
     contentRef: componentRef,
     documentTitle: 'Elad Heller - Resume',
@@ -52,7 +52,14 @@ export default function Resume() {
     <div className="min-h-screen p-8 bg-gray-900" dir="ltr">
       <main className="max-w-4xl mx-auto">
         <button
-          onClick={onPrintClick}
+          onClick={(e) => {
+            e.preventDefault();
+            if (isDev) {
+              onPrintClick(e);
+            } else {
+              window.location.href = "/Elad_Heller_CV.pdf";
+            }
+          }}
           className="mb-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 cursor-pointer"
         >
           <FaFilePdf />
