@@ -33,15 +33,15 @@
     "sanitize-filename": "^1.6.3"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
-    "@tailwindcss/postcss": "^4",
+    "@eslint/eslintrc": "^3.3.1",
+    "@tailwindcss/postcss": "^4.1.0",
     "@types/escape-html": "^1.0.4",
-    "@types/node": "^22",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
+    "@types/node": "^22.13.17",
+    "@types/react": "^19.0.12",
+    "@types/react-dom": "^19.0.4",
+    "eslint": "^9.23.0",
     "eslint-config-next": "15.2.4",
-    "tailwindcss": "^4",
-    "typescript": "^5"
+    "tailwindcss": "^4.1.0",
+    "typescript": "^5.8.2"
   }
 }
