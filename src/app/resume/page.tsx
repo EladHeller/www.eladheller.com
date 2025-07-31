@@ -100,6 +100,7 @@ export default function Resume() {
                 <span className="px-3 py-1 bg-blue-900 print:bg-blue-100 text-blue-300 print:text-blue-900 rounded-full">TypeScript</span>
                 <span className="px-3 py-1 bg-blue-900 print:bg-blue-100 text-blue-300 print:text-blue-900 rounded-full">React</span>
                 <span className="px-3 py-1 bg-blue-900 print:bg-blue-100 text-blue-300 print:text-blue-900 rounded-full">AWS Lambda</span>
+                <span className="px-3 py-1 bg-blue-900 print:bg-blue-100 text-blue-300 print:text-blue-900 rounded-full">Scala</span>
               </div>
             </div>
           </div>
@@ -109,9 +110,18 @@ export default function Resume() {
             <h2 className="text-xl font-bold text-white print:text-black mb-4">Work Experience</h2>
             <div className="space-y-6">
               <div>
+                <h3 className="text-lg font-bold text-white print:text-black">Wix.com</h3>
+                <p className="text-base text-gray-300 print:text-gray-700">Senior Backend Engineer</p>
+                <p className="text-sm text-gray-400 print:text-gray-500">Jul 2025 - Present</p>
+                <ul className="list-disc list-inside text-sm text-gray-300 print:text-gray-700 mt-1 space-y-1">
+                  <li>Developing backend services and solutions using Scala.</li>
+                </ul>
+                <p className="text-gray-400 print:text-gray-500 text-sm">Scala</p>
+              </div>
+              <div>
                 <h3 className="text-lg font-bold text-white print:text-black">Applitools</h3>
                 <p className="text-base text-gray-300 print:text-gray-700">Senior Full Stack Developer</p>
-                <p className="text-sm text-gray-400 print:text-gray-500">Feb 2023 - Present</p>
+                <p className="text-sm text-gray-400 print:text-gray-500">Feb 2023 - Mar 2025</p>
                 <ul className="list-disc list-inside text-sm text-gray-300 print:text-gray-700 mt-1 space-y-1">
                   <li>Developing and maintaining complex web applications for visual testing automation.</li>
                   <li>Implementing scalable and high-performance back-end services using Node.js and TypeScript.</li>
