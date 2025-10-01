@@ -38,7 +38,7 @@
     "@types/escape-html": "^1.0.4",
     "@types/node": "^24.1.0",
     "@types/react": "^19.1.8",
-    "@types/react-dom": "^19.1.7",
+    "@types/react-dom": "^19.1.11",
     "eslint": "^9.32.0",
     "eslint-config-next": "15.5.2",
     "tailwindcss": "^4.1.11",
