@@ -12,16 +12,16 @@ interface MDXCodeProps {
 
 export const Pre = ({ children }: { children: ReactNode }) => {
   const [copied, setCopied] = useState(false);
-  
+
   // Try to get the code and language from MDX structure
   let code = '';
   let language = 'typescript';
-  
+
   const codeElement = children as { props: MDXCodeProps };
   if (codeElement?.props) {
-    code = codeElement.props.children || '';
+    code = codeElement.props.children ?? '';
     if (codeElement.props.className) {
-      const match = codeElement.props.className.match(/language-(\w+)/);
+      const match = /language-(\w+)/.exec(codeElement.props.className);
       if (match) {
         language = match[1];
       }
@@ -41,7 +41,9 @@ export const Pre = ({ children }: { children: ReactNode }) => {
   return (
     <div className="relative group my-8" dir="ltr">
       <button
-        onClick={copyToClipboard}
+        onClick={() => {
+          void copyToClipboard();
+        }}
         className="absolute right-2 top-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded px-2 py-1 text-sm opacity-0 group-hover:opacity-100 transition-opacity z-10"
       >
         {copied ? 'הועתק!' : 'העתק'}
@@ -97,7 +99,7 @@ export const Link = ({ children, href, ...props }: LinkProps) => {
       </a>
     );
   }
-  
+
   // Use Next.js Link for internal navigation
   return (
     <NextLink

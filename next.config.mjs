@@ -11,7 +11,7 @@ const withMDX = createMDX({
 const nextConfig = {
   pageExtensions: ['js', 'jsx', 'mdx', 'ts', 'tsx'],
   output: 'export',
-  trailingSlash: true
+  trailingSlash: true,
 };
 
-export default withMDX(nextConfig); 
+export default withMDX(nextConfig);
