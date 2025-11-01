@@ -1,16 +1,16 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import Navigation from '@/components/Navigation';
+import Footer from '@/components/Footer';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.eladheller.com'),
   title: {
     default: 'למדתי היום | בלוג מאת אלעד הלר',
-    template: '%s | למדתי היום'
+    template: '%s | למדתי היום',
   },
   description: 'בלוג על תכנות, טכנולוגיה וכל מה שמעניין אותי',
   keywords: ['תכנות', 'פיתוח', 'ווב', 'javascript', 'react', 'next.js', 'טכנולוגיה'],

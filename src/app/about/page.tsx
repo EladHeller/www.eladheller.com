@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import Link from 'next/link';
 
 export default function About() {
@@ -11,8 +11,8 @@ export default function About() {
             שלום, אני אלעד הלר, מתכנת בקאנד ב-Wix.com. כאן אני משתף את המחשבות והתובנות שלי בנושאי תכנות, טכנולוגיה, ופיתוח תוכנה ובעיקר מסדר את המחשבות שלי
           </p>
           <p className="text-xl text-gray-300 leading-relaxed mt-6">
-            <Link 
-              href="/resume" 
+            <Link
+              href="/resume"
               className={`text-blue-300 hover:text-blue-400 transition-colors`}
             >
               קורות החיים שלי
@@ -22,4 +22,4 @@ export default function About() {
       </main>
     </div>
   );
-} 
+}

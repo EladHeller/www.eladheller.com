@@ -17,14 +17,14 @@ interface Post {
 function getPosts(): Post[] {
   const postsDirectory = path.join(process.cwd(), 'src/content/posts');
   const fileNames = fs.readdirSync(postsDirectory);
-  
+
   return fileNames
     .filter(fileName => fileName.endsWith('.mdx'))
     .map(fileName => {
       const fullPath = path.join(postsDirectory, fileName);
       const fileContents = fs.readFileSync(fullPath, 'utf8');
       const { data } = matter(fileContents);
-      
+
       return {
         slug: sanitize(fileName.replace(/\.mdx$/, '')),
         frontmatter: data as Post['frontmatter'],
@@ -45,7 +45,7 @@ export default function Home() {
             ברוכים הבאים לבלוג שלי, כאן אני כותב על תכנות, טכנולוגיה וכל מה שמעניין אותי.
           </p>
         </div>
-        
+
         <section>
           <h2 className="text-3xl font-bold text-white mb-8">פוסטים אחרונים</h2>
           <div className="space-y-8">

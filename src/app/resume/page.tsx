@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { FaGithub, FaLinkedin, FaEnvelope, FaFilePdf, FaGlobe } from 'react-icons/fa';
 import { useRef } from 'react';
@@ -57,7 +57,7 @@ export default function Resume() {
             if (isDev) {
               onPrintClick(e);
             } else {
-              window.location.href = "/Elad_Heller_CV.pdf";
+              window.location.href = '/Elad_Heller_CV.pdf';
             }
           }}
           className="mb-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 cursor-pointer"
@@ -210,4 +210,4 @@ export default function Resume() {
       </main>
     </div>
   );
-} 
+}
