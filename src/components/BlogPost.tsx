@@ -28,4 +28,4 @@ export default function BlogPost({ children, frontmatter }: BlogPostProps) {
       </article>
     </div>
   );
-} 
+}

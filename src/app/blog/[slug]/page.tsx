@@ -39,7 +39,7 @@ export default async function Post({
 }
 
 // generateStaticParams() should return params exactly as Next.js expects
-export async function generateStaticParams() {
+export function generateStaticParams() {
   const postsDirectory = path.join(process.cwd(), 'src/content/posts');
   const filenames = fs.readdirSync(postsDirectory);
 
