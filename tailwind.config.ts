@@ -77,4 +77,4 @@ const config: Config = {
   plugins: [typography],
 };
 
-export default config; 
+export default config;
