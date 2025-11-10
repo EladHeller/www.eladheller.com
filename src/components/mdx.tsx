@@ -111,3 +111,21 @@ export const Link = ({ children, href, ...props }: LinkProps) => {
     </NextLink>
   );
 };
+
+export const UnorderedList = ({ children }: { children: ReactNode }) => (
+  <ul className="list-disc list-inside my-6 space-y-2 text-gray-300 marker:text-blue-400">
+    {children}
+  </ul>
+);
+
+export const OrderedList = ({ children }: { children: ReactNode }) => (
+  <ol className="list-decimal list-inside my-6 space-y-2 text-gray-300 marker:text-blue-400 marker:font-semibold">
+    {children}
+  </ol>
+);
+
+export const ListItem = ({ children }: { children: ReactNode }) => (
+  <li className="leading-relaxed">
+    {children}
+  </li>
+);
