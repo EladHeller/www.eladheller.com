@@ -40,7 +40,7 @@ jobs:
       name: ${{ needs.env_detect.outputs.env_name }}
       url: ${{ needs.env_detect.outputs.website_url }}
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
 
     - name: Setup Node.js
       uses: actions/setup-node@v6
