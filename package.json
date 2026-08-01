@@ -33,7 +33,7 @@
     "sanitize-filename": "^1.6.4"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.3.5",
+    "@eslint/eslintrc": "^3.3.6",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/escape-html": "^1.0.4",
     "@types/node": "^26.1.0",
