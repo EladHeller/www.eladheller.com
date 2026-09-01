@@ -3,7 +3,6 @@
 import { useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import type { MouseEvent } from 'react';
-import type { UseReactToPrintOptions } from 'react-to-print';
 import { ResumeHeader } from '@/components/resume/ResumeHeader';
 import { ContactLinks } from '@/components/resume/ContactLinks';
 import { SkillTags } from '@/components/resume/SkillTags';
@@ -51,7 +50,7 @@ export default function Resume() {
     contentRef: componentRef,
     documentTitle: 'Elad Heller - Resume',
     pageStyle: PRINT_STYLES,
-  } as UseReactToPrintOptions);
+  });
 
   const onExportClick = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
