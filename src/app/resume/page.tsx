@@ -57,6 +57,7 @@ export default function Resume() {
     if (isDev) {
       handlePrint();
     } else {
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- Open a static PDF, not a Next.js route.
       window.location.href = '/Elad_Heller_CV.pdf';
     }
   };
