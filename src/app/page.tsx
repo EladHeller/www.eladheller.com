@@ -1,24 +1,5 @@
 import Link from 'next/link';
-import fs from 'fs';
-import path from 'path';
-import matter from 'gray-matter';
-
-interface Post {
-  slug: string;
-  title: string;
-  date: string;
-  description?: string;
-}
-
-function getPosts(): Post[] {
-  return fs.readdirSync(path.join(process.cwd(), 'src/content/posts'))
-    .filter(filename => filename.endsWith('.mdx'))
-    .map(filename => {
-      const { data } = matter(fs.readFileSync(path.join(process.cwd(), 'src/content/posts', filename), 'utf8'));
-      return { slug: filename.replace(/\.mdx$/, ''), ...data } as Post;
-    })
-    .sort((a, b) => b.date.localeCompare(a.date));
-}
+import { getPosts } from '@/lib/posts';
 
 function ElectionVisual() {
   return (
@@ -100,8 +81,8 @@ export default function Home() {
         {posts.map(post => (
           <article key={post.slug} className="writing-row">
             <time dateTime={post.date}>{new Intl.DateTimeFormat('he-IL', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(post.date))}</time>
-            <div><h3><Link href={`/blog/${post.slug}`}>{post.title}</Link></h3><p>{post.description}</p></div>
-            <Link className="writing-arrow" href={`/blog/${post.slug}`} aria-label={`לקריאה: ${post.title}`}>↖</Link>
+            <div><h3><Link href={post.href}>{post.title}</Link></h3><p>{post.description}</p></div>
+            <Link className="writing-arrow" href={post.href} aria-label={`לקריאה: ${post.title}`}>↖</Link>
           </article>
         ))}
       </section>
