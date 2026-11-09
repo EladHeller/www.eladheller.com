@@ -1,27 +1,14 @@
-'use client';
-
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 
 export default function Navigation() {
-  const pathname = usePathname();
-
   return (
-    <nav className="bg-gray-800 p-4 mb-8 z-50 shadow-lg">
-      <div className="max-w-4xl mx-auto flex gap-6">
-        <Link
-          href="/"
-          className={`text-lg ${pathname === '/' ? 'text-blue-400' : 'text-white hover:text-blue-400'} transition-colors`}
-        >
-          דף הבית
-        </Link>
-        <Link
-          href="/about"
-          className={`text-lg ${pathname === '/about' ? 'text-blue-400' : 'text-white hover:text-blue-400'} transition-colors`}
-        >
-          אודות
-        </Link>
-      </div>
-    </nav>
+    <header className="site-header">
+      <a className="skip-link" href="#main-content">דילוג לתוכן</a>
+      <nav className="site-width navigation" aria-label="ניווט ראשי">
+        <Link className="site-name" href="/">אלעד הלר<span aria-hidden="true">.</span></Link>
+        <div className="nav-links"><Link href="/#projects">פרויקטים</Link><Link href="/#writing">כתיבה</Link><Link href="/about">אודות</Link></div>
+        <a className="nav-github" href="https://github.com/EladHeller">GitHub <span aria-hidden="true">↗</span></a>
+      </nav>
+    </header>
   );
 }

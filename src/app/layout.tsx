@@ -1,18 +1,15 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import './globals.css';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 
-const inter = Inter({ subsets: ['latin'] });
-
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.eladheller.com'),
   title: {
-    default: 'למדתי היום | בלוג מאת אלעד הלר',
-    template: '%s | למדתי היום',
+    default: 'אלעד הלר | פרויקטים וכתיבה',
+    template: '%s | אלעד הלר',
   },
-  description: 'בלוג על תכנות, טכנולוגיה וכל מה שמעניין אותי',
+  description: 'פרויקטים בתוכנה, כלים לניתוח נתונים, אוטומציות וכתיבה על בעיות מעניינות בפיתוח.',
   keywords: ['תכנות', 'פיתוח', 'ווב', 'javascript', 'react', 'next.js', 'טכנולוגיה'],
   authors: [{ name: 'אלעד הלר' }],
   creator: 'אלעד הלר',
@@ -25,22 +22,22 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'he_IL',
     url: 'https://www.eladheller.com',
-    siteName: 'למדתי היום | בלוג מאת אלעד הלר',
-    title: 'למדתי היום | בלוג מאת אלעד הלר',
-    description: 'בלוג על תכנות, טכנולוגיה וכל מה שמעניין אותי',
+    siteName: 'אלעד הלר | פרויקטים וכתיבה',
+    title: 'אלעד הלר | פרויקטים וכתיבה',
+    description: 'פרויקטים בתוכנה, כלים לניתוח נתונים, אוטומציות וכתיבה על בעיות מעניינות בפיתוח.',
     images: [
       {
         url: '/preview.png',
         width: 1200,
         height: 630,
-        alt: 'למדתי היום | בלוג מאת אלעד הלר',
+        alt: 'אלעד הלר | פרויקטים וכתיבה',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'למדתי היום | בלוג מאת אלעד הלר',
-    description: 'בלוג על תכנות, טכנולוגיה וכל מה שמעניין אותי',
+    title: 'אלעד הלר | פרויקטים וכתיבה',
+    description: 'פרויקטים בתוכנה, כלים לניתוח נתונים, אוטומציות וכתיבה על בעיות מעניינות בפיתוח.',
     images: ['/preview.png'],
     creator: '@eladheller',
   },
@@ -64,9 +61,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="he" dir="rtl">
-      <body className={`${inter.className} flex flex-col min-h-screen bg-gray-900`}>
+      <body className="flex flex-col min-h-screen">
         <Navigation />
-        <main className="flex-grow">
+        <main id="main-content" className="flex-grow">
           {children}
         </main>
         <Footer />
