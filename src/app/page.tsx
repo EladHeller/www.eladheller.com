@@ -11,7 +11,7 @@ function ElectionVisual() {
           <span key={height} style={{ height: `${height}%`, opacity: 1 - index * 0.08 }} />
         ))}
       </div>
-      <div className="visual-caption visual-bottom"><span>תוצאות. תרחישים. השוואות.</span><span>↗</span></div>
+      <div className="visual-caption visual-bottom"><span>כלים לניתוח תוצאות הבחירות</span><span>↗</span></div>
     </div>
   );
 }
@@ -36,9 +36,9 @@ export default function Home() {
     <div className="home-page site-width">
       <section className="home-hero" aria-labelledby="intro-title">
         <p className="eyebrow">אלעד הלר / מפתח תוכנה</p>
-        <h1 id="intro-title">סקרנות.<br />קוד. <span>דברים שעובדים.</span></h1>
+        <h1 id="intro-title">פרויקטים שאני בונה<br /><span>מחוץ לעבודה</span></h1>
         <div className="hero-bottom">
-          <p>מפתח בקאנד ב־Wix. מחוץ לעבודה אני בונה כלים לניתוח נתונים, אוטומציות ודברים שעוזרים לי להבין איך דברים עובדים.</p>
+          <p>אני אלעד, מפתח בקאנד ב־Wix. כאן אפשר להתנסות בפרויקטים האישיים שלי ולקרוא על כמה מהבעיות שפגשתי בפיתוח.</p>
           <a className="text-link" href="#projects">לפרויקטים <span aria-hidden="true">↓</span></a>
         </div>
       </section>
@@ -50,18 +50,17 @@ export default function Home() {
           <div className="project-copy">
             <span className="project-number">01 / נתונים וכלים</span>
             <h3>בחירות בישראל</h3>
-            <p className="project-lead">מה אפשר ללמוד מהקולות?</p>
-            <p>תוצאות הבחירות עד לרמת היישוב והקלפי, השוואות בין מערכות בחירות וסימולטור לחלוקת מנדטים. מקום לבדוק גם שאלות של ״מה היה קורה אם״.</p>
+            <p>באתר אפשר לחקור את תוצאות הבחירות עד לרמת הקלפי ולבדוק בסימולטור איך שינוי בקולות היה משפיע על חלוקת המנדטים.</p>
             <div className="project-links"><a className="text-link" href="https://elections.eladheller.com">לפתיחת האתר <span aria-hidden="true">↗</span></a><a href="https://github.com/EladHeller/israel-elections">קוד המקור</a></div>
             <p className="tech-note" dir="ltr">TypeScript · React · AWS</p>
           </div>
         </article>
         <div className="project-pair">
           <article className="small-project">
-            <div className="small-project-art wiki-visual" aria-hidden="true"><span className="wiki-letter">א</span><div><span>ויקיפדיה</span><p>עדכון נתונים<br />תחזוקה שוטפת<br />פחות עבודה ידנית</p></div></div>
+            <div className="small-project-art wiki-visual" aria-hidden="true"><span className="wiki-letter">א</span><div><span>ויקיפדיה</span><p>בוטים שעוזרים<br />לתחזק את האנציקלופדיה</p></div></div>
             <span className="project-number">02 / אוטומציה</span>
             <h3>הבוטים לוויקיפדיה</h3>
-            <p>משימות שחוזרות על עצמן הופכות לקוד: עדכון נתונים, תחזוקת תבניות ותיקון קישורים בוויקיפדיה העברית.</p>
+            <p>הבוטים שלי מבצעים משימות תחזוקה בוויקיפדיה העברית, מתיקון קישורים ועד עדכון נתונים בערכים.</p>
             <div className="project-links"><a className="text-link" href="https://github.com/EladHeller/wiki-bot">לפרויקט ב־GitHub <span aria-hidden="true">↗</span></a></div>
             <p className="tech-note" dir="ltr">TypeScript · AWS Lambda</p>
           </article>
@@ -77,7 +76,7 @@ export default function Home() {
       </section>
 
       <section id="writing" className="writing-section" aria-labelledby="writing-title">
-        <div className="section-heading"><h2 id="writing-title">מדי פעם, גם כותב</h2><span className="section-note">בעיות שפגשתי בדרך</span></div>
+        <div className="section-heading"><h2 id="writing-title">כתיבה</h2><span className="section-note">בעיות שפגשתי בדרך</span></div>
         {posts.map(post => (
           <article key={post.slug} className="writing-row">
             <time dateTime={post.date}>{new Intl.DateTimeFormat('he-IL', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(post.date))}</time>
@@ -86,7 +85,7 @@ export default function Home() {
           </article>
         ))}
       </section>
-      <section className="contact-section" aria-labelledby="contact-title"><p className="eyebrow">נשארים בקשר</p><h2 id="contact-title">יש על מה לדבר.</h2><a className="text-link" href="mailto:blog@eladheller.com">שלחו לי מייל <span aria-hidden="true">↗</span></a></section>
+      <section className="contact-section" aria-labelledby="contact-title"><h2 id="contact-title">יצירת קשר</h2><a className="text-link" href="mailto:blog@eladheller.com">שלחו לי מייל <span aria-hidden="true">↗</span></a></section>
     </div>
   );
 }
